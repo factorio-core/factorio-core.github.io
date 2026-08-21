@@ -1,0 +1,13 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# generated API docs (auto-generated on build by starlight-typedoc)
+src/content/docs/api/
+
+# logs & cache
+.DS_Store
+*.log

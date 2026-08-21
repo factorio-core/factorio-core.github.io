@@ -1,0 +1,245 @@
+---
+title: "fcore — Reactive UI Engine & Mod Framework for Factorio 2.0"
+description: "High-performance TypeScript-To-Lua Virtual DOM framework and standalone modding toolkit for Factorio 2.0."
+hero:
+  tagline: Declarative Virtual DOM, React Hooks, O(1) Event Routing, and Bucketed Scheduler for Factorio 2.0 mods.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: "Architectural Patterns"
+      link: /patterns/react/
+      icon: right-arrow
+      variant: primary
+    - text: "Cybersyn2 Constant Combinator"
+      link: /cybersyn2-combinator/
+      icon: document
+      variant: secondary
+    - text: "API Reference"
+      link: /api/
+      icon: open-book
+      variant: minimal
+---
+
+import { Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Quickstart: Integrating fcore into your Mod
+
+`fcore` is a **standalone Factorio mod and library** designed for both **TypeScript-To-Lua (TSTL)** and **Pure Lua** modding in **Factorio 2.0**.
+
+Because `fcore` runs as an independent Factorio mod:
+- **Zero Code Duplication:** Library code is not bundled into every mod archive.
+- **Automatic Prototype Styles:** All GUI styles (`react_tab_button`, `react_slot_button_*`, frames, margins) are registered automatically in `data.lua`.
+- **Automatic Settings:** Global settings (such as logging levels) are registered in `settings.lua`.
+- **Self-Bootstrapping React:** React event listeners and savegame hydration are initialized automatically upon module load.
+
+---
+
+### 1. Declare Mod Dependency (info.json)
+
+In your mod's `info.json` (or `static/info.json`), add `fcore` to dependencies:
+
+```json
+{
+  "name": "my-factorio-mod",
+  "version": "1.0.0",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "fcore >= 1.0.0",
+    "base >= 2.1.0"
+  ]
+}
+```
+
+---
+
+<Tabs>
+  <TabItem label="TypeScript (TSTL)" icon="seti:typescript">
+
+### 2. Configure TypeScript Project
+
+#### package.json
+Link `fcore` as a development dependency:
+
+```json
+{
+  "name": "my-factorio-mod",
+  "version": "1.0.0",
+  "dependencies": {
+    "fcore": "file:../fcore"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0",
+    "typescript-to-lua": "^1.37.0",
+    "typed-factorio": "^4.2.0"
+  }
+}
+```
+
+#### tsconfig.json
+Configure TSTL path mapping, plugin, and `noResolvePaths`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "react",
+    "jsxFactory": "createElement",
+    "jsxFragmentFactory": "Fragment",
+    "types": [
+      "typed-factorio/runtime",
+      "typed-factorio/prototype",
+      "@typescript-to-lua/language-extensions"
+    ],
+    "paths": {
+      "fcore/*": ["./node_modules/fcore/dist/*"]
+    }
+  },
+  "tstl": {
+    "luaTarget": "5.2",
+    "luaLibImport": "require",
+    "noImplicitSelf": true,
+    "sourceMapTraceback": true,
+    "luaPlugins": [
+      { "name": "fcore/plugin.cjs" }
+    ],
+    "noResolvePaths": ["util", "__fcore__/**", "__fcore__*"]
+  },
+  "include": ["src/**/*"]
+}
+```
+
+### 3. Write Declarative UI (control.ts)
+
+```tsx
+import { createElement, useState, createRoot } from "fcore/react";
+import { WindowFrame, Titlebar, Button, Label, VFlow } from "fcore/react-components";
+import * as event from "fcore/utils/event";
+
+function MyWindow(props: { playerIndex: PlayerIndex; onClose: () => void }) {
+  const [count, setCount] = useState(0);
+
+  return (
+    <WindowFrame styles={{ width: 320 }}>
+      <Titlebar caption="My Mod Window" onClose={props.onClose} />
+      <VFlow styles={{ padding: 12 }}>
+        <Label caption={`Clicked: ${count} times`} />
+        <Button
+          caption="Increment"
+          onClick={() => setCount((prev) => prev + 1)}
+        />
+      </VFlow>
+    </WindowFrame>
+  );
+}
+
+// Open window on custom input / shortcut
+event.onCustomInput("open-my-gui", (e) => {
+  const player = game.get_player(e.player_index);
+  if (!player) return;
+
+  const root = createRoot(player.gui.screen, "my_mod_window");
+  root.render(
+    <MyWindow
+      playerIndex={e.player_index}
+      onClose={() => root.unmount()}
+    />
+  );
+});
+```
+
+  </TabItem>
+  <TabItem label="Pure Lua" icon="seti:lua">
+
+### 2. Require Modules in control.lua
+
+In pure Lua, you can require modules directly from `__fcore__`:
+
+```lua
+local react = require("__fcore__/react/index")
+local components = require("__fcore__/react-components/index")
+local event = require("__fcore__/utils/event")
+local strace = require("__fcore__/utils/strace").strace
+local table_util = require("__fcore__/utils/table")
+
+local createElement = react.createElement
+local useState = react.useState
+local createRoot = react.createRoot
+
+local WindowFrame = components.WindowFrame
+local Titlebar = components.Titlebar
+local Button = components.Button
+local Label = components.Label
+local VFlow = components.VFlow
+
+-- 1. Functional component in Lua
+local function MyWindow(props)
+  local count, setCount = useState(0)
+
+  return createElement(WindowFrame, { styles = { width = 320 } }, {
+    createElement(Titlebar, {
+      caption = "My Mod Window",
+      onClose = props.onClose
+    }),
+    createElement(VFlow, { styles = { padding = 12 } }, {
+      createElement(Label, { caption = "Clicked: " .. tostring(count) .. " times" }),
+      createElement(Button, {
+        caption = "Increment",
+        onClick = function() setCount(count + 1) end
+      })
+    })
+  })
+end
+
+-- 2. Open window via event dispatcher
+event.on_custom_input("open-my-gui", function(e)
+  local player = game.get_player(e.player_index)
+  if not player then return end
+
+  local root = createRoot(player.gui.screen, "my_mod_window")
+  root.render(createElement(MyWindow, {
+    playerIndex = e.player_index,
+    onClose = function() root.unmount() end
+  }))
+end)
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Technical Comparison
+
+| Factorio Lua Pattern | TypeScript + fcore Framework Solution |
+| :--- | :--- |
+| **Silent nil Indexing & Typos** | Strict compile-time checks catch missing prototype names, invalid properties, and misspelled keys before game launch. |
+| **Branded Engine IDs** | Native `PlayerIndex`, `SurfaceIndex`, `UnitNumber` branded types prevent mixing numeric identifiers. |
+| **Verbose Nested Lua Tables** | Clean, declarative **JSX syntax** replaces hundreds of lines of nested `element.add({ type = "frame", ... })`. |
+| **Complex State Management** | Standard React hooks (`useState`, `useReducer`, `useMemo`, `useCallback`) preserve component state across game saves. |
+| **Direct Compilation** | TSTL transpiles directly to clean, optimal Lua 5.2 bytecode without heavy class polyfills or reflection overhead. |
+
+---
+
+## Core Framework Modules
+
+<CardGrid stagger>
+  <Card title="React Virtual DOM Reconciler" icon="seti:react">
+    Full JSX syntax, functional components, stateful hooks (`useState`, `useInterval`, `useEntityLifecycle`), dirty property diffing, and zero-cost sub-tree Bailouts.
+  </Card>
+  <Card title="Tag-Based Event Bus" icon="rocket">
+    High-speed integer event dispatcher resolves Factorio GUI events directly to target fiber handlers via `tags.__reactId`. Zero linear tree traversal.
+  </Card>
+  <Card title="Bucketed Tick Scheduler" icon="clock">
+    Distributes delayed and recurring tasks across discrete tick buckets in `storage._sched`, maintaining 60 UPS without per-frame `on_tick` polling.
+  </Card>
+  <Card title="Prototype Style Engine" icon="pencil">
+    Compile-time type-safe Factorio `gui-style` generation with `StyleFor<E>` inference and smart C++ property diffing.
+  </Card>
+  <Card title="Structured Logger (strace)" icon="document">
+    Structured diagnostic logger with lazy callback evaluation (`traceLazy`, `debugLazy`) for high-frequency game ticks.
+  </Card>
+  <Card title="Signal and Quality Engine" icon="puzzle">
+    Encode and decode Factorio 2.0 composite signal keys (`item:iron-plate:legendary`) with $O(1)$ lookup and serialization helpers.
+  </Card>
+</CardGrid>

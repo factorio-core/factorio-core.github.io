@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <!-- Factorio Industrial Glow Filter -->
+    <filter id="factorio-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- React Electron Ring Gradients -->
+    <linearGradient id="orbit-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffc46b" />
+      <stop offset="50%" stop-color="#ff9f1c" />
+      <stop offset="100%" stop-color="#e05300" />
+    </linearGradient>
+    <linearGradient id="orbit-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffb84d" />
+      <stop offset="50%" stop-color="#ff9f1c" />
+      <stop offset="100%" stop-color="#cc4400" />
+    </linearGradient>
+
+    <!-- Core Gear / Plate Gradient -->
+    <radialGradient id="gear-base" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a282a" />
+      <stop offset="70%" stop-color="#1c1b1c" />
+      <stop offset="100%" stop-color="#141314" />
+    </radialGradient>
+
+    <!-- Letter 'F' Industrial Gradient -->
+    <linearGradient id="f-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff275" />
+      <stop offset="30%" stop-color="#ffae19" />
+      <stop offset="100%" stop-color="#e65c00" />
+    </linearGradient>
+  </defs>
+
+  <!-- React 3 Orbit Rings -->
+  <g transform="translate(128, 128)" filter="url(#factorio-glow)">
+    <!-- Orbit 1: 0 deg -->
+    <ellipse cx="0" cy="0" rx="108" ry="40" fill="none" stroke="url(#orbit-grad-1)" stroke-width="5" opacity="0.9" />
+    
+    <!-- Orbit 2: 60 deg -->
+    <ellipse cx="0" cy="0" rx="108" ry="40" transform="rotate(60)" fill="none" stroke="url(#orbit-grad-2)" stroke-width="5" opacity="0.9" />
+    
+    <!-- Orbit 3: 120 deg -->
+    <ellipse cx="0" cy="0" rx="108" ry="40" transform="rotate(120)" fill="none" stroke="url(#orbit-grad-1)" stroke-width="5" opacity="0.9" />
+
+    <!-- Orbit Circuit Nodes (Electrons) -->
+    <circle cx="108" cy="0" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+    <circle cx="-108" cy="0" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+    <circle cx="54" cy="93.5" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+    <circle cx="-54" cy="-93.5" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+    <circle cx="-54" cy="93.5" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+    <circle cx="54" cy="-93.5" r="4.5" fill="#fff" stroke="#ff9f1c" stroke-width="2" />
+  </g>
+
+  <!-- Central Factorio Gear Hub -->
+  <g transform="translate(128, 128)">
+    <!-- Gear teeth (8 teeth) -->
+    <path d="
+      M -15,-52 L 15,-52 L 12,-42 L 28,-36 L 40,-45 L 52,-32 L 39,-22 L 44,-7 L 55,-2 L 55,16 L 43,18 L 38,34 L 49,46 L 34,55 L 23,43 L 8,46 L 2,56 L -16,54 L -17,43 L -33,37 L -45,47 L -55,33 L -42,23 L -45,7 L -55,2 L -53,-16 L -42,-18 L -36,-34 L -47,-45 L -33,-54 L -23,-42 L -8,-45 Z"
+      fill="url(#gear-base)"
+      stroke="#ff9f1c"
+      stroke-width="3.5"
+      stroke-linejoin="round"
+    />
+
+    <!-- Inner Core Bevel Circle -->
+    <circle cx="0" cy="0" r="38" fill="#181718" stroke="#525052" stroke-width="2" />
+    <circle cx="0" cy="0" r="34" fill="#222122" stroke="#ff9f1c" stroke-width="1.5" stroke-dasharray="4 3" />
+
+    <!-- Stylized Factorio 'F' -->
+    <path
+      d="M -18,-24 L 20,-24 L 20,-11 L -5,-11 L -5,-3 L 15,-3 L 15,9 L -5,9 L -5,25 L -18,25 Z"
+      fill="url(#f-grad)"
+      stroke="#121212"
+      stroke-width="1.5"
+      stroke-linejoin="miter"
+      filter="url(#factorio-glow)"
+    />
+  </g>
+</svg>

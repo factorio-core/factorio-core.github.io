@@ -1,0 +1,30 @@
+{
+  "name": "fcore-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "prebuild": "npm run clean",
+    "predev": "npm run clean",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/starlight": "^0.32.0",
+    "astro": "^5.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typedoc": "^0.28.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "astro-mermaid": "^2.1.0",
+    "mermaid": "^11.17.0",
+    "starlight-typedoc": "^0.21.5",
+    "typedoc-plugin-markdown": "^4.12.0"
+  }
+}

@@ -1,0 +1,232 @@
+---
+title: "Cybersyn2 Constant Combinator"
+description: "Complete guide, user manual, and architectural breakdown for Cybersyn 2 Constant Combinator in Factorio 2.0."
+---
+
+import { Badge, Card, CardGrid } from '@astrojs/starlight/components';
+import { Image } from 'astro:assets';
+import combinatorImg from '../../assets/cybersyn2-combinator/c2cc_combinator.png';
+import encoderImg from '../../assets/cybersyn2-combinator/c2cc_combinator_encoder.png';
+import globalNetImg from '../../assets/cybersyn2-combinator/c2cc_combinator_global_networks.png';
+import settingsImg from '../../assets/cybersyn2-combinator/c2cc_combinator_settings.png';
+import adminImg from '../../assets/cybersyn2-combinator/c2cc_combinator_settings_admin.png';
+
+<div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+  <a href="https://mods.factorio.com/mod/cybersyn2-combinator" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+    <Badge text="Factorio Mod Portal" variant="caution" size="medium" />
+  </a>
+  <a href="https://github.com/VladislavPrimakov/mods_factorio/tree/master/cybersyn2-combinator" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+    <Badge text="GitHub Repository" variant="note" size="medium" />
+  </a>
+</div>
+
+**Cybersyn 2 Constant Combinator** is a dedicated constant combinator mod for **Project Cybersyn 2** in Factorio 2.0.
+It provides a reactive user interface powered by **`fcore`** and TypeScript JSX for managing station priorities, 32-bit network bitmasks, item/stack quantity calculations, and section group requests directly on native Factorio 2.0 control behavior sections.
+
+<Image src={combinatorImg} alt="Cybersyn 2 Constant Combinator GUI" style="border-radius: 8px; border: 1px solid var(--sl-color-gray-5); margin: 1rem 0;" />
+
+---
+
+## Features
+
+<CardGrid stagger>
+  <Card title="Combinator Control Panel" icon="setting">
+    Status toggle (`Output: On` / `Output: Off`), 40-slot output signal grid, and instant tabbed navigation (**Combinator** and **Settings** tabs).
+  </Card>
+  <Card title="Priorities Summary Pane" icon="list-format">
+    Displays an integrated telemetry pane showing all unique items/fluids at the station with their Min/Max **Request** and **Supply** priorities across matching networks.
+  </Card>
+  <Card title="32-Bit Bitmask Encoder" icon="puzzle">
+    Interactive 32-channel visual bitmask editor dialog with live network scanner across all active surfaces.
+  </Card>
+  <Card title="Item and Stack Calculations" icon="bars">
+    Dual input fields for **Stacks** and **Count** with automatic focus based on signal type (items vs fluids) and automatic negative conversion for Cybersyn requests.
+  </Card>
+  <Card title="Player Settings and Admin Operations" icon="laptop">
+    Embedded in-game settings tab with draft state management and optional admin batch updates across all world combinators.
+  </Card>
+  <Card title="Reconciliation and Lifecycle Architecture" icon="rocket">
+    Built on `fcore` Virtual DOM diffing, bucketed polling schedulers, and native C++ UI elements.
+  </Card>
+</CardGrid>
+
+---
+
+## Logistic Sections Structure
+
+The combinator organizes native Factorio 2.0 constant combinator sections into dedicated functional roles:
+
+1. **Section 1 (Station Priority)**: Manages the `cybersyn2-priority` virtual signal.
+2. **Section 2 (Network Mask)**: Manages network mask bit flags on `signal-A` (or a customized network signal).
+3. **Sections 3+ (Custom Section Groups)**: User-defined item and fluid request groups.
+4. **Automated Save Migrations**: Includes a migration script that reorganizes legacy constant combinators from older saves automatically.
+
+---
+
+## Station Priority and Network Telemetry
+
+### Station Priority Adjustment
+Adjust the station priority directly via synchronized Slider and Numeric input fields. Default values for newly built combinators are configurable per player.
+
+### Signal Priorities Summary (Telemetry)
+The built-in **Priorities Summary** table queries Cybersyn 2 in the background and aggregates logistics data:
+- Inspects all item and fluid orders at the station.
+- Scans all matching network providers and requesters across the world.
+- Displays live **Min/Max Request Priorities** (Blue) and **Min/Max Supply Priorities** (Red) per signal directly in the combinator window.
+
+---
+
+## Network Masks and Bitmask Encoder
+
+Factorio train networks in Cybersyn 2 utilize 32-bit channel bitmasks.
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;">
+  <div style="flex: 1; min-width: 280px;">
+    <h4>Interactive Bitmask Grid</h4>
+    <p>Click individual bits (1–32) to toggle channels on or off:</p>
+    <Image src={encoderImg} alt="Bitmask Encoder Dialog" style="border-radius: 6px; border: 1px solid var(--sl-color-gray-5);" />
+  </div>
+  <div style="flex: 1; min-width: 280px;">
+    <h4>Global Active Networks</h4>
+    <p>Discovers all active network masks in use across factory surfaces and allows one-click adoption:</p>
+    <Image src={globalNetImg} alt="Active Global Networks Dialog" style="border-radius: 6px; border: 1px solid var(--sl-color-gray-5);" />
+  </div>
+</div>
+
+---
+
+## Signal Input and Stack Calculation Rules
+
+The behavior of the **Stacks** and **Count** input fields dynamically adapts based on the selected **Signal Type**:
+
+| Signal Type | **Stacks** Input | **Count** Input | Default Focus | Output Quantity Formula |
+| :--- | :--- | :--- | :--- | :--- |
+| **Item** (Stackable) | Enabled | Enabled | Preferred Mode (**Counts** / **Stacks**) | `stacks × stack_size` (or exact `count`) |
+| **Fluid / Virtual** (Non-stackable) | **Disabled** | Enabled | **Count** | Exact `count` |
+| **None** (Empty Slot) | Enabled | Enabled | Preferred Mode | Default setting value (or 1 / 1 stack) |
+
+### Slot Controls:
+- **Left-Click empty slot**: Opens the signal picker dialog.
+- **Left-Click filled slot**: Selects the slot and focuses the preferred input field.
+- **Right-Click filled slot**: Clears the signal filter from the slot.
+
+> **Default Fallback**: If neither input field contains a value when selecting a signal, it uses the configured **Default Output Stacks** or **Default Output Count** setting (or **1 stack** / **1 item** if default settings are 0).
+
+> **Negative Values**: If _Automatically make output signals negative_ is enabled (default), calculated values are output as negative integers for Cybersyn 2 logistics requests.
+
+---
+
+## Player Settings
+
+Preferences are configured directly inside the combinator's **Settings** tab:
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;">
+  <div style="flex: 1; min-width: 280px;">
+    <h4>Player Preferences</h4>
+    <Image src={settingsImg} alt="Player Settings Tab" style="border-radius: 6px; border: 1px solid var(--sl-color-gray-5);" />
+  </div>
+  <div style="flex: 1; min-width: 280px;">
+    <h4>Admin Batch Updates</h4>
+    <Image src={adminImg} alt="Admin Batch Updates" style="border-radius: 6px; border: 1px solid var(--sl-color-gray-5);" />
+  </div>
+</div>
+
+| Setting | Default | Description |
+| :--- | :--- | :--- |
+| **Automatically make output signals negative** | `true` | Outputs item and fluid requests as negative values for Cybersyn 2. |
+| **Default Station Priority** | `10` | Default priority assigned to newly placed combinators. |
+| **Default Network Signal** | `signal-A` | Default network mask signal prototype (e.g. `signal-A`, `signal-B`). |
+| **Default Network Mask** | `1` | Default network bitmask flag for new stations. |
+| **Default Output Stacks** | `0` | Default stack input value pre-filled in GUI (0 for 1 stack fallback). |
+| **Default Output Count** | `0` | Default count input value pre-filled in GUI (0 for 1 item fallback). |
+| **Default Item Input Mode** | `"count"` | Preferred default focused input field for items (`"count"` or `"stacks"`). |
+
+### Admin Batch Update Options:
+- **`Apply priority to all combinators (Admin only)`**: Updates all existing combinators in the world matching the previous default priority on Save.
+- **`Apply network to all combinators (Admin only)`**: Updates all existing combinators in the world matching the previous default network signal and mask on Save.
+
+---
+
+## Component Implementation
+
+### 1. Root Window Registration (`main.tsx`)
+```tsx
+import { createElement, useState, useMemo, useEntityLifecycle, registerComponent } from "fcore/react";
+import type { LuaEntity, PlayerIndex } from "factorio:runtime";
+import { WindowFrame, TabbedPane, Tab } from "fcore/react-components";
+import { CombinatorTab } from "./combinator_tab";
+import { PrioritiesSummary } from "./priorities_summary";
+import { SettingsTab } from "./settings_tab";
+import { Combinator } from "../../models/combinator";
+import { CAPTIONS, GUI } from "../../constants";
+
+export function MainWindow({ playerIndex, entity: initialEntity }: { playerIndex: PlayerIndex; entity: LuaEntity }) {
+  const [entity, setEntity] = useState<LuaEntity | undefined>(() => initialEntity);
+
+  useEntityLifecycle(entity, {
+    onDestroyed: () => setEntity(undefined),
+    onRevived: (newEntity) => setEntity(newEntity),
+  });
+
+  const comb = useMemo(
+    () => (entity && entity.valid ? new Combinator(entity) : undefined),
+    [entity],
+  );
+
+  if (!entity || !entity.valid || !comb) return undefined;
+
+  return (
+    <WindowFrame
+      name={GUI.MAIN_ELEMENT_NAME}
+      caption={CAPTIONS.TITLE}
+      playerIndex={playerIndex}
+      pinnable={true}
+      styles={{ maximal_width: 470, minimal_width: 455 }}
+    >
+      <TabbedPane default_tab_index={1}>
+        <Tab caption={CAPTIONS.TAB_COMBINATOR}>
+          <CombinatorTab playerIndex={playerIndex} combinator={comb} />
+        </Tab>
+        <Tab caption={CAPTIONS.TAB_SETTINGS}>
+          <SettingsTab playerIndex={playerIndex} combinator={comb} />
+        </Tab>
+      </TabbedPane>
+    </WindowFrame>
+  );
+}
+
+registerComponent(GUI.MAIN_ELEMENT_NAME, MainWindow);
+```
+
+### 2. Zero-Allocation Polling with `useInterval` (`priorities_summary.tsx`)
+```tsx
+import { createElement, useState, useInterval } from "fcore/react";
+import { SlotButton, SlotButtonTable, ScrollPane } from "fcore/react-components";
+import { querySignalPriorities, findStationForCombinator } from "../priorities";
+
+export function PrioritiesSummary({ playerIndex, combinator }: PrioritiesSummaryProps) {
+  const entity = combinator.getEntity();
+  if (!entity || !entity.valid) return undefined;
+
+  const [prioritiesCache, setPrioritiesCache] = useState(() =>
+    querySignalPriorities(entity)
+  );
+
+  // Polls network status every 120 game ticks (2 seconds) via fcore bucket scheduler
+  useInterval(() => {
+    if (!entity.valid) return;
+    const newPrio = querySignalPriorities(entity);
+    setPrioritiesCache(newPrio);
+  }, 120);
+
+  if (!prioritiesCache || prioritiesCache.length === 0) return undefined;
+
+  return (
+    <ScrollPane style="scroll_pane" maximal_height={160}>
+      <SlotButtonTable column_count={5}>
+        {/* Render live priority badges */}
+      </SlotButtonTable>
+    </ScrollPane>
+  );
+}
+```
