@@ -27,7 +27,6 @@ flowchart LR
 Subscribe to game events, lifecycle hooks, and periodic tick intervals with strict TypeScript typing:
 
 ```ts
-/** @noSelfInFile */
 import * as event from "fcore/utils/event";
 
 // 1. Standard Factorio game event (payload is strictly typed)

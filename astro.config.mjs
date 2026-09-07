@@ -7,8 +7,7 @@ import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://vladislavprimakov.github.io',
-  base: '/mods_factorio',
+  site: process.env.SITE_URL || 'https://factorio-core.github.io',
   integrations: [
     mermaid({
       theme: 'dark',
@@ -23,7 +22,7 @@ export default defineConfig({
         replacesTitle: false,
       },
       social: {
-        github: 'https://github.com/VladislavPrimakov/mods_factorio',
+        github: 'https://github.com/factorio-core',
       },
       customCss: ['./src/styles/custom.css'],
       plugins: [
@@ -37,6 +36,7 @@ export default defineConfig({
             '../fcore/src/utils/data.ts',
             '../fcore/src/utils/strace.ts',
             '../fcore/src/utils/table.ts',
+            '../fcore/src/utils/translate.ts',
             '../fcore/src/styles/index.ts',
           ],
           tsconfig: '../fcore/tsconfig.json',
@@ -69,22 +69,21 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Introduction',
-          items: [{ label: 'Overview', link: '/' }],
-        },
-        {
-          label: 'Architectural Patterns',
           items: [
-            { label: 'React', link: '/patterns/react/' },
-            { label: 'Event', link: '/patterns/event/' },
-            { label: 'Scheduler', link: '/patterns/scheduler/' },
-            { label: 'Styles', link: '/patterns/styles/' },
-            { label: 'Strace', link: '/patterns/strace/' },
+            { label: 'Overview', link: '/' },
+            { label: 'Infrastructure', link: '/fcore/infrastructure/' },
+            { label: 'React', link: '/fcore/react/' },
+            { label: 'Event', link: '/fcore/event/' },
+            { label: 'Scheduler', link: '/fcore/scheduler/' },
+            { label: 'Styles', link: '/fcore/styles/' },
+            { label: 'Strace', link: '/fcore/strace/' },
+            { label: 'Translate', link: '/fcore/translate/' },
           ],
         },
         {
-          label: 'Cybersyn2 Combinator',
+          label: 'Mods',
           items: [
-            { label: 'Overview & Manual', link: '/cybersyn2-combinator/' },
+            { label: 'Cybersyn2 Combinator', link: '/cybersyn2-combinator/' },
           ],
         },
         {

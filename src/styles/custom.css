@@ -1,10 +1,12 @@
-/* ==========================================================================
-   Factorio Starlight Dark Theme Customization
-   ========================================================================== */
+/* Universal Layout Variables */
+:root {
+  --sl-sidebar-width: 16rem;
+  --sl-content-width: 58rem;
+}
 
+/* Dark Mode (Default Factorio Dark Theme) */
 :root,
-[data-theme='light'],
-[data-theme='dark'] {
+:root[data-theme='dark'] {
   --sl-color-accent-low: #3a2205;
   --sl-color-accent: #ff9f1c;
   --sl-color-accent-high: #ffc46b;
@@ -22,6 +24,40 @@
   --sl-color-bg-sidebar: #181718;
   --sl-color-hairline: #2e2d2e;
   --sl-color-hairline-light: #383738;
+  --sl-color-text-accent: var(--sl-color-accent-high);
+}
+
+/* Light Mode (Clean Warm Factorio Amber Theme) */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ffe8cc;
+  --sl-color-accent: #d97706;
+  --sl-color-accent-high: #92400e;
+  --sl-color-white: #18181b;
+  --sl-color-gray-1: #27272a;
+  --sl-color-gray-2: #52525b;
+  --sl-color-gray-3: #71717a;
+  --sl-color-gray-4: #a1a1aa;
+  --sl-color-gray-5: #e4e4e7;
+  --sl-color-gray-6: #f4f4f5;
+  --sl-color-gray-7: #fafafa;
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #f4f4f5;
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-hairline: #e4e4e7;
+  --sl-color-hairline-light: #f4f4f5;
+  --sl-color-text-accent: var(--sl-color-accent-high);
+}
+
+/* Compact Table of Contents (On this page) */
+starlight-toc {
+  font-size: 0.8125rem;
+}
+
+starlight-toc a {
+  padding-block: 0.2rem;
+  line-height: 1.35;
 }
 
 /* Custom Factorio Scrollbar */
@@ -39,10 +75,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--sl-color-gray-4);
-}
-
-/* Factorio Orange glow for active sidebar items */
-nav .active {
-  color: var(--sl-color-accent-high) !important;
-  border-inline-start-color: var(--sl-color-accent) !important;
 }

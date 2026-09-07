@@ -6,8 +6,8 @@ hero:
   image:
     file: ../../assets/logo.svg
   actions:
-    - text: "Architectural Patterns"
-      link: /patterns/react/
+    - text: "fcore Guide"
+      link: /fcore/react/
       icon: right-arrow
       variant: primary
     - text: "Cybersyn2 Constant Combinator"
@@ -58,16 +58,26 @@ In your mod's `info.json` (or `static/info.json`), add `fcore` to dependencies:
 ### 2. Configure TypeScript Project
 
 #### package.json
-Link `fcore` as a development dependency:
+Link `fcore` and configure the zero-config build runner:
 
 ```json
 {
   "name": "my-factorio-mod",
   "version": "1.0.0",
+  "prettier": "fcore/prettier",
+  "scripts": {
+    "build": "npm run format && npm run lint && fcore-build",
+    "release": "fcore-release",
+    "watch": "fcore-build --watch",
+    "lint": "eslint src/ --max-warnings 0",
+    "format": "prettier --write --log-level warn \"src/**/*.{ts,tsx}\""
+  },
   "dependencies": {
     "fcore": "file:../fcore"
   },
   "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.5.0",
     "typescript": "^6.0.0",
     "typescript-to-lua": "^1.37.0",
     "typed-factorio": "^4.2.0"
@@ -76,37 +86,24 @@ Link `fcore` as a development dependency:
 ```
 
 #### tsconfig.json
-Configure TSTL path mapping, plugin, and `noResolvePaths`:
+Extend `fcore/tsconfig.base.json` to inherit all Factorio 2.0 compiler settings, JSX factories, AST style transformers, and Lua import plugins in a single line:
 
 ```json
 {
+  "extends": "fcore/tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "jsx": "react",
-    "jsxFactory": "createElement",
-    "jsxFragmentFactory": "Fragment",
-    "types": [
-      "typed-factorio/runtime",
-      "typed-factorio/prototype",
-      "@typescript-to-lua/language-extensions"
-    ],
-    "paths": {
-      "fcore/*": ["./node_modules/fcore/dist/*"]
-    }
-  },
-  "tstl": {
-    "luaTarget": "5.2",
-    "luaLibImport": "require",
-    "noImplicitSelf": true,
-    "sourceMapTraceback": true,
-    "luaPlugins": [
-      { "name": "fcore/plugin.cjs" }
-    ],
-    "noResolvePaths": ["util", "__fcore__/**", "__fcore__*"]
+    "rootDir": "./src",
+    "outDir": "./dist"
   },
   "include": ["src/**/*"]
 }
+```
+
+#### eslint.config.mjs
+One-line ESLint 9 configuration enforcing Factorio Lua 5.2 VM compatibility and performance best practices:
+
+```javascript
+export { default } from 'fcore/eslint';
 ```
 
 ### 3. Write Declarative UI (control.ts)
@@ -241,5 +238,8 @@ end)
   </Card>
   <Card title="Signal and Quality Engine" icon="puzzle">
     Encode and decode Factorio 2.0 composite signal keys (`item:iron-plate:legendary`) with $O(1)$ lookup and serialization helpers.
+  </Card>
+  <Card title="Infrastructure & Tooling" icon="setting">
+    Zero-config CLI runners (`fcore-build`, `fcore-release`), ESLint 9 VM guardrails, TSTL compiler plugins, and automated mod packaging. [Explore Infrastructure &rarr;](/fcore/infrastructure/)
   </Card>
 </CardGrid>
